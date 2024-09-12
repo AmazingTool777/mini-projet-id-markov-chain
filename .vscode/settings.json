@@ -1,0 +1,4 @@
+{
+    "dotnet.defaultSolution": "IDMarkovChain.sln",
+    "dotnet.server.useOmnisharp": true
+}
