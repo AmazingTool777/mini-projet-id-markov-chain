@@ -5,6 +5,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine(JsonSerializer.Serialize(EmployeePerformanceDataset.Load(true)));
+        Console.WriteLine(JsonSerializer.Serialize(EmployeePerformanceDataset.Load()));
     }
 }

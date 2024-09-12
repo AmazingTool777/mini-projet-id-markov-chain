@@ -75,12 +75,11 @@ namespace IDMarkovChain.Models.EmployeePerformance
                 employeesPerformances = EmployeePerformancefactory.CreateMany();
                 File.WriteAllText(EmployeesPerformancesDatasetPath, JsonSerializer.Serialize(employeesPerformances));
             }
-
-            if (employeesPerformances == null)
+            else if (employeesPerformances == null)
             {
                 if (File.Exists(FullNamesPath))
                 {
-                    employeesPerformances = JsonSerializer.Deserialize<List<EmployeePerformance>>(EmployeesPerformancesDatasetPath);
+                    employeesPerformances = JsonSerializer.Deserialize<List<EmployeePerformance>>(File.ReadAllText(EmployeesPerformancesDatasetPath));
                 }
                 else
                 {
