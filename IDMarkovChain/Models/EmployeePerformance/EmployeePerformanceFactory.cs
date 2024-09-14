@@ -15,7 +15,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
             List<string> fullNames = JsonSerializer.Deserialize<List<string>>(plainFullnames)!;
             int currFullNameIndice = 0;
 
-            int clustersCount = EmployeePerformanceDataset.HyptheticalActions[0].TransitionMatrix.GetLength(0);
+            int clustersCount = EmployeePerformanceDataset.HypotheticalActions[0].TransitionMatrix.GetLength(0);
             const int MIN_OUTPUT_COUNT = 1, MAX_OUTPUT_COUNT = 201;
             int outputCountRangeGap = (MAX_OUTPUT_COUNT - MIN_OUTPUT_COUNT) / clustersCount;
             List<int[]> outputCountRanges = [];
@@ -28,15 +28,17 @@ namespace IDMarkovChain.Models.EmployeePerformance
 
             int empId = 1;
 
-            int employeesCountPerCluster = EmployeePerformanceDataset.SAMPLES_COUNT * EmployeePerformanceDataset.EXPERIMENTS_COUNT;
-            int actionsCount = EmployeePerformanceDataset.HyptheticalActions.Length;
+            int actionsCount = EmployeePerformanceDataset.HypotheticalActions.Length;
+
+            int EMPLOYEES_COUNT_PER_CLUSTER = 15;
+
             for (int i = 0; i < actionsCount; i++)
             {
                 for (int j = 0; j < clustersCount; j++)
                 {
                     int[] outputCountRange = outputCountRanges[j];
 
-                    for (int k = 0; k < employeesCountPerCluster; k++)
+                    for (int k = 0; k < EMPLOYEES_COUNT_PER_CLUSTER; k++)
                     {
                         Random outputCountRandom = new();
                         EmployeePerformance performance = new(empId, fullNames[currFullNameIndice], "ne-rien-faire", outputCountRandom.Next(outputCountRange[0], outputCountRange[1]), 0);
@@ -50,11 +52,11 @@ namespace IDMarkovChain.Models.EmployeePerformance
             int empReCount = 0;
             for (int i = 0; i < actionsCount; i++)
             {
-                MarkovChainAction action = EmployeePerformanceDataset.HyptheticalActions[i];
+                MarkovChainAction action = EmployeePerformanceDataset.HypotheticalActions[i];
 
                 for (int j = 0; j < clustersCount; j++)
                 {
-                    for (int k = 0; k < employeesCountPerCluster; k++)
+                    for (int k = 0; k < EMPLOYEES_COUNT_PER_CLUSTER; k++)
                     {
                         Random outputCountRandom = new();
                         int[] outputCountRange = outputCountRanges[action.Apply(j)];
