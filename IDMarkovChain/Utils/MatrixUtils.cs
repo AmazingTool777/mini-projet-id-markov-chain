@@ -18,18 +18,18 @@ namespace IDMarkovChain.Utils
         // Aggrégation d'une liste de matrices en une nouvelle matrice moyenne
         public static float[,] AverageMatrices(List<float[,]> matrices)
         {
-            // Taille de la matrice
-            int matrixSize = matrices[0].GetLength(0);
+            // Dimensions de la matrice
+            int[] matrixSize = [matrices[0].GetLength(0), matrices[0].GetLength(1)];
             // Initialisation de la matrice moyenne
-            float[,] avgMatrix = new float[matrixSize, matrixSize];
+            float[,] avgMatrix = new float[matrixSize[0], matrixSize[1]];
 
             // Somme des valeurs dans chaque matrice
             for (int experiments = 0; experiments < matrices.Count; experiments++)
             {
                 float[,] matrix = matrices[experiments];
-                for (int i = 0; i < matrixSize; i++)
+                for (int i = 0; i < matrixSize[0]; i++)
                 {
-                    for (int j = 0; j < matrixSize; j++)
+                    for (int j = 0; j < matrixSize[1]; j++)
                     {
                         avgMatrix[i, j] += matrix[i, j];
                     }
@@ -37,9 +37,9 @@ namespace IDMarkovChain.Utils
             }
             // Rapport entre les sommes obtenues et le nombre de matrices dans la liste
             // afin de finaliser les valeurs moyennes
-            for (int i = 0; i < matrixSize; i++)
+            for (int i = 0; i < matrixSize[0]; i++)
             {
-                for (int j = 0; j < matrixSize; j++)
+                for (int j = 0; j < matrixSize[1]; j++)
                 {
                     avgMatrix[i, j] /= matrices.Count;
                 }
