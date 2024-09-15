@@ -7,24 +7,12 @@ namespace IDMarkovChain.Algorithms.KMeans
         // Algorithme de clustering par la méthode des K-Moyennes
         public static KMeansCluster[] Clusterize(int k, IClusterPoint[] dataPoints, int maxIterations = 100, float tolerance = 0.001f)
         {
+            // Initialisation de la liste de clusters
             KMeansCluster[] clusters = new KMeansCluster[k];
 
-            // Détermination des bornes min et max des points
-            float dataPointsMin = float.MaxValue, dataPointsMax = float.MinValue;
-            foreach (IClusterPoint dataPoint in dataPoints)
-            {
-                if (dataPoint.Coordinate < dataPointsMin)
-                {
-                    dataPointsMin = dataPoint.Coordinate;
-                }
-                if (dataPoint.Coordinate > dataPointsMax)
-                {
-                    dataPointsMax = dataPoint.Coordinate;
-                }
-            }
-            // Initilisation des centroides et des clusters asscociés à chaque centroïde
-            // avec des valeurs comprises entre les bornes min et max
-            float[] centroids = NumbersUtils.GenerateUniqueRandomNumbersInRange(k, dataPointsMin, dataPointsMax);
+            // Création de K centroïdes
+            float[] centroids = CreateCentroids(k, dataPoints);
+            // Initialisation de chaque cluster avec les centroïdes créés
             for (int i = 0; i < k; i++)
             {
                 clusters[i] = new KMeansCluster(i, [], centroids[i]);
@@ -43,9 +31,9 @@ namespace IDMarkovChain.Algorithms.KMeans
                 foreach (IClusterPoint dataPoint in dataPoints)
                 {
                     // Trouver le cluster propriétaire
-                    KMeansCluster nearestCluster = FindParentCluster(dataPoint, clusters);
+                    KMeansCluster parentCluster = FindParentCluster(dataPoint, clusters);
                     // Affecter le point vers ce cluster
-                    nearestCluster.Points.Add(dataPoint);
+                    parentCluster.Points.Add(dataPoint);
                 }
 
                 // Initilisation de la liste des nouveaux centroides à calculer
@@ -54,38 +42,20 @@ namespace IDMarkovChain.Algorithms.KMeans
                 // Calcul des nouveaux centroides de chaque cluster
                 for (int i = 0; i < k; i++)
                 {
-                    KMeansCluster cluster = clusters[i];
-                    float sum = 0;
-                    foreach (IClusterPoint point in cluster.Points)
-                    {
-                        sum += point.Coordinate;
-                    }
-                    float nextCentroid = sum / cluster.Points.Count;
-                    cluster.Centroid = nextCentroid;
+                    float nextCentroid = clusters[i].ComputeCentroid();
+                    // Memorisation du nouveau centroïde
                     nextCentroids[i] = nextCentroid;
                 }
 
-                // Calcul de la convergence des centroides par la comparaison des distances euclidiennes avec la tolerance
-                double centroidsDistance = 0;
-                for (int i = 0; i < k; i++)
-                {
-                    centroidsDistance += Math.Pow(Math.Abs(nextCentroids[i] - centroids[i]), 2);
-                }
-                centroidsDistance = Math.Sqrt(centroidsDistance);
-                // S'il y a convergence, sortir de la boucle
-                if (centroidsDistance < tolerance) break;
+                // SORTIR s'il y a convergence
+                if (CheckConvergence(centroids, nextCentroids, tolerance)) break;
 
                 // Mise à jour de la liste courante des centroïdes pour la prochaine itération
                 centroids = nextCentroids;
             }
 
             // Tri des clusters par ordre croissant des centroides
-            clusters = [.. clusters.OrderBy(c => c.Centroid)];
-            // Mise à jour des identifiants de chaque cluster suite au tri précédent
-            for (int i = 0; i < k; i++)
-            {
-                clusters[i].Id = i;
-            }
+            SortClusters(clusters);
 
             return clusters;
         }
@@ -107,6 +77,49 @@ namespace IDMarkovChain.Algorithms.KMeans
                 }
             }
             return clusters[clusterIndex];
+        }
+
+        // Crée K centroïdes à partir d'une liste des points de données
+        private static float[] CreateCentroids(int k, IClusterPoint[] dataPoints)
+        {
+            // Détermination des bornes min et max des points
+            float dataPointsMin = float.MaxValue, dataPointsMax = float.MinValue;
+            foreach (IClusterPoint dataPoint in dataPoints)
+            {
+                dataPointsMin = Math.Min(dataPoint.Coordinate, dataPointsMin);
+                dataPointsMax = Math.Max(dataPoint.Coordinate, dataPointsMax);
+            }
+            // Initilisation des centroides et des clusters asscociés à chaque centroïde
+            // avec des valeurs comprises entre les bornes min et max
+            return NumbersUtils.GenerateUniqueRandomNumbersInRange(k, dataPointsMin, dataPointsMax);
+        }
+
+        // Vérification de la convergence de 2 liste de centroïdes étant donnée un valeur de tolérance
+        private static bool CheckConvergence(float[] prevCentroids, float[] centroids, float tolerance = 0.001f)
+        {
+            // Calcul de la distance euclidienne entre les chaque centroïde des 2 listes de centroïdes
+            double centroidsDistance = 0;
+            for (int i = 0; i < centroids.Length; i++)
+            {
+                centroidsDistance += Math.Pow(Math.Abs(centroids[i] - prevCentroids[i]), 2);
+            }
+            centroidsDistance = Math.Sqrt(centroidsDistance);
+
+            // Il y a convergence si la distance euclidienne est inférieure à la tolérance donnée
+            return centroidsDistance < tolerance;
+        }
+
+        // Trie une liste de clusters par ordre croissant des centroïdes
+        private static KMeansCluster[] SortClusters(KMeansCluster[] clusters)
+        {
+            clusters = [.. clusters.OrderBy(c => c.Centroid)];
+            // Mise à jour des identifiants de chaque cluster suite au tri précédent
+            for (int i = 0; i < clusters.Length; i++)
+            {
+                clusters[i].Id = i;
+            }
+
+            return clusters;
         }
     }
 }

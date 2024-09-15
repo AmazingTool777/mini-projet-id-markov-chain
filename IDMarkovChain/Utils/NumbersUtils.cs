@@ -2,10 +2,11 @@ namespace IDMarkovChain.Utils
 {
     public static class NumbersUtils
     {
-        public static float[] GenerateUniqueRandomNumbersInRange(int count, float min, float max)
+        // Génère N nombres uniques entre un intervalle [min, max[ donné.
+        public static float[] GenerateUniqueRandomNumbersInRange(int n, float min, float max)
         {
             // S'assurer que l'intervalle est suffisament grand pour supporter le nombre de valeurs à générer
-            if (count > max - min + 1)
+            if (n > max - min + 1)
             {
                 throw new ArgumentException("The range is too small to generate the required number of unique numbers.");
             }
@@ -15,7 +16,7 @@ namespace IDMarkovChain.Utils
             Random random = new();
 
             // Boucler jusqu'a avoir le nombre de nombres uniques requis
-            while (uniqueNumbers.Count < count)
+            while (uniqueNumbers.Count < n)
             {
                 // Générer un nombre unique entre l'intervalle [min, max]
                 float newNumber = (max - min) * (float)random.NextDouble() + min;
@@ -24,6 +25,20 @@ namespace IDMarkovChain.Utils
             }
 
             return [.. uniqueNumbers];
+        }
+
+        // Divise une intervalle [min, max[ donnée en N sous-intervalles
+        public static List<int[]> GetSubRanges(int n, int min, int max)
+        {
+            int gap = (max - min) / n;
+            List<int[]> ranges = [];
+            for (int i = 0; i < n; i++)
+            {
+                int outputCountRangeMin = min + gap * i;
+                int outputCountRangeMax = outputCountRangeMin + gap;
+                ranges.Add([outputCountRangeMin, outputCountRangeMax]);
+            }
+            return ranges;
         }
     }
 }

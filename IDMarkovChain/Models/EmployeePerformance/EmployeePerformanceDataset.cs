@@ -36,7 +36,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
         public static readonly int ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT = 8;
 
         // Le nombre d'expériences sur la détermination de la matrice de transition
-        public static readonly int ACTIONS_COMPUTE_EXPERIMENTS_COUNT = 100;
+        public static readonly int ACTIONS_COMPUTE_EXPERIMENTS_COUNT = 1000;
 
         // Les noms et libellés des actions possibles
         public static readonly (string name, string label)[] ActionsNamesLabels = [
@@ -78,12 +78,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
 
         // Les valeurs des actions calculées à partir du dataset actuel.
         // Les valeurs des matrices de transitions seront calculées par la méthode `computeActions()`
-        public static MarkovChainAction[] ComputedActions { get; } = [
-            new(ActionsNamesLabels[0].name, ActionsNamesLabels[0].label, new float[4, 4]),
-            new(ActionsNamesLabels[1].name, ActionsNamesLabels[1].label, new float[4, 4]),
-            new(ActionsNamesLabels[2].name, ActionsNamesLabels[2].label, new float[4, 4]),
-            new(ActionsNamesLabels[3].name, ActionsNamesLabels[3].label, new float[4, 4])
-        ];
+        public static MarkovChainAction[] ComputedActions { get; set; } = new MarkovChainAction[ActionsNamesLabels.Length];
 
         // Charge les données sur les performances des employés en utilisant le design pattern "Singleton"
         public static List<EmployeePerformance>? Load(bool create = false)
@@ -113,89 +108,104 @@ namespace IDMarkovChain.Models.EmployeePerformance
         // suite au résultat de l'algorithme des K-Moyennes sur le dataset
         public static MarkovChainAction[] ComputeActions()
         {
+            // Chargument du dataset sur les performances des employés
             List<EmployeePerformance> performances = Load()!;
+            // Diviser le dataset en 2 pour chaque t ([0]: t=0, [1]: t=1)
             List<EmployeePerformance>[] performancesPerT = [
                 [.. performances.Where(d => d.Week == 0)],
                 [.. performances.Where(d => d.Week == 1)],
             ];
 
-            int K = 4;
+            // Nombre de clusters
+            int K = 4; // ou HypotheticalActions[0].TransitionMatrix.GetLength(0)
+            // Clusterisation du dataset selon le niveau de performance
             KMeansCluster[] statesClusters = KMeansClustering.Clusterize(K, [.. performances!]);
 
+            // Le nombre d'employés qui sont appliqués à une action
+            // est obtenu par la division du nombre d'employés sur le nombre d'actions définies
             int actionPerformancesCount = performancesPerT[0].Count / ComputedActions.Length;
 
+            // Calcul de la matrice de transition à chaque action
             for (int action = 0; action < ComputedActions.Length; action++)
             {
-                var (name, label) = ActionsNamesLabels[action];
+                // Nom + Libellé de l'action actuelle
+                var actionData = ActionsNamesLabels[action];
 
+                // Les matrices de transitions obtenues par toutes les experiences des moyennes experimentales
                 List<float[,]> experimentsTransitionsMatrices = [];
 
+                // Les données des employés qui ont subi l'action actuelle à partir de t=0 (à l'état initial)
                 List<EmployeePerformance> actionInitialPerformances = performancesPerT[0].Slice(action * actionPerformancesCount, actionPerformancesCount);
-
+                // Les données des employés résultant de l'action actuelle à t=1 (à l'état finale)
+                // Dictionnaire: Clé: l'Id de l'employé - Valeur: les données sur l'employé comme valeur
                 Dictionary<int, EmployeePerformance> actionFinalPerformancesByEmpId = [];
-                foreach (EmployeePerformance performance in performancesPerT[1].Where(p => p.Action == name))
+                foreach (EmployeePerformance performance in performancesPerT[1].Where(p => p.Action == actionData.name))
                 {
                     actionFinalPerformancesByEmpId.Add(performance.EmpId, performance);
                 }
 
+                // Répartition des données performances à l'état initial par cluster
+                // Dictionnaire: Clé: Id du cluster - Valeur: Liste des données de performance dans le cluster
                 Dictionary<int, List<EmployeePerformance>> actionInitialPerformancesByCluster = [];
                 foreach (EmployeePerformance performance in actionInitialPerformances)
                 {
                     KMeansCluster parentCluster = KMeansClustering.FindParentCluster(performance, statesClusters);
-                    if (!actionInitialPerformancesByCluster.ContainsKey(parentCluster.Id))
+                    if (!actionInitialPerformancesByCluster.TryGetValue(parentCluster.Id, out List<EmployeePerformance>? value))
                     {
-                        actionInitialPerformancesByCluster.Add(parentCluster.Id, []);
+                        value = ([]);
+                        actionInitialPerformancesByCluster.Add(parentCluster.Id, value);
                     }
-                    actionInitialPerformancesByCluster[parentCluster.Id].Add(performance);
+
+                    value.Add(performance);
                 }
 
+                // Calcul des matrices de transitions à chaque experience des moyennes expérimentales
                 for (int experiment = 0; experiment < ACTIONS_COMPUTE_EXPERIMENTS_COUNT; experiment++)
                 {
+                    // Initialisation de matrice de transition pour l'experience actuelle
                     float[,] experimentTransitionMatrix = new float[statesClusters.Length, statesClusters.Length];
 
+                    // Calcul ligne-par-ligne de la matrice de transition
+                    // Chaque ligne correspond à chaque état (cluster) initial possible
                     foreach (KMeansCluster cluster in statesClusters)
                     {
+                        // Initialisation d'un tableau contenant le nombre d'occurences de transitions
+                        // à partir de l'état initial actuel vers tous les états finaux possibles
                         int[] finalStatesCounts = new int[statesClusters.Length];
 
+                        // Générer un nombre défini `ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT` d'indices aléatoires
+                        // parmis la liste des données de performance dans le cluster actuel
                         List<EmployeePerformance> clusterPerformances = actionInitialPerformancesByCluster[cluster.Id];
-
-                        int[] clusterSamplesPerformancesIndices = ArrayUtils.GetRandomUniqueIndexes(clusterPerformances.Count, ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT);
+                        int[] clusterSamplesPerformancesIndices = ArrayUtils.GetRandomUniqueIndices(clusterPerformances.Count, ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT);
+                        // Pour chaque données de performances séléctionnées aléatoirement,
+                        // dénombrer le nombre d'occurences de transitions vers l'état final de l'employé correspondant
                         for (int i = 0; i < ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT; i++)
                         {
                             Random random = new();
                             EmployeePerformance initialPerformance = clusterPerformances[clusterSamplesPerformancesIndices[i]];
                             EmployeePerformance finalPerformance = actionFinalPerformancesByEmpId[initialPerformance.EmpId];
                             KMeansCluster finalPerformanceCluster = KMeansClustering.FindParentCluster(finalPerformance, statesClusters);
-                            finalStatesCounts[finalPerformanceCluster.Id] = finalStatesCounts[finalPerformanceCluster.Id] + 1;
+                            // Incrémenter le nombre d'occurence de transitions partant de l'état actuel vers l'état final de l'employé
+                            finalStatesCounts[finalPerformanceCluster.Id]++;
                         }
 
+                        // Remplir la ligne de la matrice de transition correspondant à l'état (cluster) actuel initial
                         for (int i = 0; i < finalStatesCounts.Length; i++)
                         {
+                            // P[i,j] = nombre d'occurences de i vers j / nombre d'individus séléctionnés
                             experimentTransitionMatrix[cluster.Id, i] = (float)finalStatesCounts[i] / ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT;
                         }
                     }
 
+                    // Ajouter la matrice de transition à la liste des matrices de transitions
+                    // pour l'ensemble des toutes les expériences
                     experimentsTransitionsMatrices.Add(experimentTransitionMatrix);
                 }
 
-                for (int experiments = 0; experiments < ACTIONS_COMPUTE_EXPERIMENTS_COUNT; experiments++)
-                {
-                    float[,] experimentTransitionMatrix = experimentsTransitionsMatrices[experiments];
-                    for (int i = 0; i < statesClusters.Length; i++)
-                    {
-                        for (int j = 0; j < statesClusters.Length; j++)
-                        {
-                            ComputedActions[action].TransitionMatrix[i, j] += experimentTransitionMatrix[i, j];
-                        }
-                    }
-                }
-                for (int i = 0; i < statesClusters.Length; i++)
-                {
-                    for (int j = 0; j < statesClusters.Length; j++)
-                    {
-                        ComputedActions[action].TransitionMatrix[i, j] /= ACTIONS_COMPUTE_EXPERIMENTS_COUNT;
-                    }
-                }
+                // Matrice de transition moyenne des matrices de transition par toutes les expériences
+                float[,] avgTransitionMatrix = MatrixUtils.AverageMatrices(experimentsTransitionsMatrices);
+                // La matrice de transition moyenne sera utilisée par l'action calculée de l'action actuelle
+                ComputedActions[action] = new(actionData.name, actionData.label, avgTransitionMatrix);
             }
 
             return ComputedActions;
