@@ -47,5 +47,26 @@ namespace IDMarkovChain.Utils
 
             return avgMatrix;
         }
+
+        /// <summary>
+        /// Retourne la transposée d'une matrice
+        /// </summary>
+        /// <param name="matrix">La matrice donnée</param>
+        /// <returns>La matrice transposée</returns>
+        public static double[,] Transpose(double[,] matrix)
+        {
+            int[] matrixSize = [matrix.GetLength(0), matrix.GetLength(1)];
+            double[,] transposeMatrix = new double[matrixSize[1], matrixSize[0]];
+
+            for (int i = 0; i < matrixSize[1]; i++)
+            {
+                for (int j = 0; j < matrixSize[0]; j++)
+                {
+                    transposeMatrix[i, j] = matrix[j, i];
+                }
+            }
+
+            return transposeMatrix;
+        }
     }
 }
