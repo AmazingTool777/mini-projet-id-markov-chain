@@ -16,7 +16,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
         public int Week { get; set; } = week;
 
         [JsonIgnore]
-        public float Coordinate { get { return OutputCount; } }
+        public double Coordinate { get { return OutputCount; } }
 
         // Redéfinition de la méthode `Equals()` afin de permettre la comparaison des objets dans la collection `HashSet`
         public override bool Equals(object? obj)

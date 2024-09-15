@@ -3,7 +3,7 @@ namespace IDMarkovChain.Utils
     public static class NumbersUtils
     {
         // Génère N nombres uniques entre un intervalle [min, max[ donné.
-        public static float[] GenerateUniqueRandomNumbersInRange(int n, float min, float max)
+        public static double[] GenerateUniqueRandomNumbersInRange(int n, double min, double max)
         {
             // S'assurer que l'intervalle est suffisament grand pour supporter le nombre de valeurs à générer
             if (n > max - min + 1)
@@ -12,14 +12,14 @@ namespace IDMarkovChain.Utils
             }
 
             // HashSet pour stocker les nombres uniques
-            HashSet<float> uniqueNumbers = [];
+            HashSet<double> uniqueNumbers = [];
             Random random = new();
 
             // Boucler jusqu'a avoir le nombre de nombres uniques requis
             while (uniqueNumbers.Count < n)
             {
                 // Générer un nombre unique entre l'intervalle [min, max]
-                float newNumber = (max - min) * (float)random.NextDouble() + min;
+                double newNumber = (max - min) * (double)random.NextDouble() + min;
                 // HashSet garantit l'unicité donc plus la peine de vérifier les doublons
                 uniqueNumbers.Add(newNumber);
             }

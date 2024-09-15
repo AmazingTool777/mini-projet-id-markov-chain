@@ -5,13 +5,13 @@ namespace IDMarkovChain.Algorithms.KMeans
     public static class KMeansClustering
     {
         // Algorithme de clustering par la méthode des K-Moyennes
-        public static KMeansCluster[] Clusterize(int k, IClusterPoint[] dataPoints, int maxIterations = 100, float tolerance = 0.001f)
+        public static KMeansCluster[] Clusterize(int k, IClusterPoint[] dataPoints, int maxIterations = 100, double tolerance = 0.001f)
         {
             // Initialisation de la liste de clusters
             KMeansCluster[] clusters = new KMeansCluster[k];
 
             // Création de K centroïdes
-            float[] centroids = CreateCentroids(k, dataPoints);
+            double[] centroids = CreateCentroids(k, dataPoints);
             // Initialisation de chaque cluster avec les centroïdes créés
             for (int i = 0; i < k; i++)
             {
@@ -37,12 +37,12 @@ namespace IDMarkovChain.Algorithms.KMeans
                 }
 
                 // Initilisation de la liste des nouveaux centroides à calculer
-                float[] nextCentroids = new float[k];
+                double[] nextCentroids = new double[k];
 
                 // Calcul des nouveaux centroides de chaque cluster
                 for (int i = 0; i < k; i++)
                 {
-                    float nextCentroid = clusters[i].ComputeCentroid();
+                    double nextCentroid = clusters[i].ComputeCentroid();
                     // Memorisation du nouveau centroïde
                     nextCentroids[i] = nextCentroid;
                 }
@@ -65,11 +65,11 @@ namespace IDMarkovChain.Algorithms.KMeans
         public static KMeansCluster FindParentCluster(IClusterPoint point, KMeansCluster[] clusters)
         {
             int clusterIndex = -1;
-            float minDistance = float.MaxValue;
+            double minDistance = double.MaxValue;
             for (int i = 0; i < clusters.Length; i++)
             {
                 // Calculer la distance entre la donnée et le centroïde du cluster
-                float distance = Math.Abs(clusters[i].Centroid - point.Coordinate);
+                double distance = Math.Abs(clusters[i].Centroid - point.Coordinate);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -80,10 +80,10 @@ namespace IDMarkovChain.Algorithms.KMeans
         }
 
         // Crée K centroïdes à partir d'une liste des points de données
-        private static float[] CreateCentroids(int k, IClusterPoint[] dataPoints)
+        private static double[] CreateCentroids(int k, IClusterPoint[] dataPoints)
         {
             // Détermination des bornes min et max des points
-            float dataPointsMin = float.MaxValue, dataPointsMax = float.MinValue;
+            double dataPointsMin = double.MaxValue, dataPointsMax = double.MinValue;
             foreach (IClusterPoint dataPoint in dataPoints)
             {
                 dataPointsMin = Math.Min(dataPoint.Coordinate, dataPointsMin);
@@ -95,7 +95,7 @@ namespace IDMarkovChain.Algorithms.KMeans
         }
 
         // Vérification de la convergence de 2 liste de centroïdes étant donnée un valeur de tolérance
-        private static bool CheckConvergence(float[] prevCentroids, float[] centroids, float tolerance = 0.001f)
+        private static bool CheckConvergence(double[] prevCentroids, double[] centroids, double tolerance = 0.001f)
         {
             // Calcul de la distance euclidienne entre les chaque centroïde des 2 listes de centroïdes
             double centroidsDistance = 0;

@@ -1,19 +1,19 @@
 namespace IDMarkovChain.Utils
 {
-    public class MarkovChainAction(string name, string label, float[,] transitionMatrix)
+    public class MarkovChainAction(string name, string label, double[,] transitionMatrix)
     {
         public string Name { get; } = name;
 
         public string Label { get; } = label;
 
-        public float[,] TransitionMatrix { get; } = transitionMatrix;
+        public double[,] TransitionMatrix { get; } = transitionMatrix;
 
         // Génère un état final de transition aléatoire à partir d'un état initial donné
         // mais qui sera choisie selon les probabilités de chaque transition
         public int Apply(int initialState)
         {
             // Correspondance entre les probabilités et les états finaux correspondants
-            Dictionary<float, int> probsStatesMap = new();
+            Dictionary<double, int> probsStatesMap = new();
             int matrixLength = TransitionMatrix.GetLength(0);
             for (int i = 0; i < matrixLength; i++)
             {
@@ -21,7 +21,7 @@ namespace IDMarkovChain.Utils
             }
 
             // Tri et copie des probabilités des transitions à partir de l'état initial donné
-            float[] sortedProbabilities = new float[matrixLength];
+            double[] sortedProbabilities = new double[matrixLength];
             for (int i = 0; i < matrixLength; i++)
             {
                 sortedProbabilities[i] = TransitionMatrix[initialState, i];
@@ -30,11 +30,11 @@ namespace IDMarkovChain.Utils
 
             // Génération d'une nombre aléatoire
             Random nextStateProbRandom = new();
-            float nextStateProbability = (float)nextStateProbRandom.NextDouble();
+            double nextStateProbability = (double)nextStateProbRandom.NextDouble();
             // Détermination de l'état final de transition correspondant au nombre aléatoire généré
             // en utilisant un tableau cumulé des probabilités à partir de l'état initial donné
             // et de la correspondance entre les probabilités de transitions et les états finaux de transitions
-            float cumulProbabilities = 0;
+            double cumulProbabilities = 0;
             for (int i = 0; i < matrixLength; i++)
             {
                 cumulProbabilities += sortedProbabilities[i];
@@ -49,7 +49,7 @@ namespace IDMarkovChain.Utils
 
         public void Describe()
         {
-            Console.WriteLine("---- ACTION: " + Label + " ----------------------------------------------");
+            Console.WriteLine("- ACTION: " + Label + " ----------------------------------------------");
             MatrixUtils.PrintMatrix(TransitionMatrix, 12);
         }
     }

@@ -50,29 +50,29 @@ namespace IDMarkovChain.Models.EmployeePerformance
         // Les données en matrices de transitions doivent faire l'objet de vérifications
         // contre celles calculées à partir du dataset actuel.
         public static readonly MarkovChainAction[] HypotheticalActions = [
-            new(ActionsNamesLabels[0].name, ActionsNamesLabels[0].label, new float[4, 4] {
-                { 0.75f, 0.20f, 0.05f, 0.00f },
-                { 0.25f, 0.60f, 0.10f, 0.05f },
-                { 0.05f, 0.15f, 0.70f, 0.10f },
-                { 0.00f, 0.05f, 0.20f, 0.75f }
+            new(ActionsNamesLabels[0].name, ActionsNamesLabels[0].label, new double[4, 4] {
+                { 0.75, 0.20, 0.05, 0.00 },
+                { 0.25, 0.60, 0.10, 0.05 },
+                { 0.05, 0.15, 0.70, 0.10 },
+                { 0.00, 0.05, 0.20, 0.75 }
             }),
-            new(ActionsNamesLabels[1].name, ActionsNamesLabels[1].label, new float[4, 4] {
-                { 0.40f, 0.35f, 0.20f, 0.05f },
-                { 0.11f, 0.50f, 0.30f, 0.09f },
-                { 0.05f, 0.10f, 0.55f, 0.30f },
-                { 0.00f, 0.05f, 0.20f, 0.75f }
+            new(ActionsNamesLabels[1].name, ActionsNamesLabels[1].label, new double[4, 4] {
+                { 0.40, 0.35, 0.20, 0.05 },
+                { 0.11, 0.50, 0.30, 0.09 },
+                { 0.05, 0.10, 0.55, 0.30 },
+                { 0.00, 0.05, 0.20, 0.75 }
             }),
-            new(ActionsNamesLabels[2].name, ActionsNamesLabels[2].label, new float[4, 4] {
-                { 0.60f, 0.30f, 0.10f, 0.00f },
-                { 0.15f, 0.55f, 0.25f, 0.05f },
-                { 0.05f, 0.10f, 0.60f, 0.25f },
-                { 0.00f, 0.05f, 0.10f, 0.85f }
+            new(ActionsNamesLabels[2].name, ActionsNamesLabels[2].label, new double[4, 4] {
+                { 0.60, 0.30, 0.10, 0.00 },
+                { 0.15, 0.55, 0.25, 0.05 },
+                { 0.05, 0.10, 0.60, 0.25 },
+                { 0.00, 0.05, 0.10, 0.85 }
             }),
-            new(ActionsNamesLabels[3].name, ActionsNamesLabels[3].label, new float[4, 4] {
-                { 0.85f, 0.10f, 0.05f, 0.00f },
-                { 0.50f, 0.40f, 0.05f, 0.05f },
-                { 0.25f, 0.20f, 0.40f, 0.15f },
-                { 0.10f, 0.05f, 0.20f, 0.65f }
+            new(ActionsNamesLabels[3].name, ActionsNamesLabels[3].label, new double[4, 4] {
+                { 0.85, 0.10, 0.05, 0.00 },
+                { 0.50, 0.40, 0.05, 0.05 },
+                { 0.25, 0.20, 0.40, 0.15 },
+                { 0.10, 0.05, 0.20, 0.65 }
             })
         ];
 
@@ -132,7 +132,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
                 var actionData = ActionsNamesLabels[action];
 
                 // Les matrices de transitions obtenues par toutes les experiences des moyennes experimentales
-                List<float[,]> experimentsTransitionsMatrices = [];
+                List<double[,]> experimentsTransitionsMatrices = [];
 
                 // Les données des employés qui ont subi l'action actuelle à partir de t=0 (à l'état initial)
                 List<EmployeePerformance> actionInitialPerformances = performancesPerT[0].Slice(action * actionPerformancesCount, actionPerformancesCount);
@@ -163,7 +163,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
                 for (int experiment = 0; experiment < ACTIONS_COMPUTE_EXPERIMENTS_COUNT; experiment++)
                 {
                     // Initialisation de matrice de transition pour l'experience actuelle
-                    float[,] experimentTransitionMatrix = new float[statesClusters.Length, statesClusters.Length];
+                    double[,] experimentTransitionMatrix = new double[statesClusters.Length, statesClusters.Length];
 
                     // Calcul ligne-par-ligne de la matrice de transition
                     // Chaque ligne correspond à chaque état (cluster) initial possible
@@ -193,7 +193,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
                         for (int i = 0; i < finalStatesCounts.Length; i++)
                         {
                             // P[i,j] = nombre d'occurences de i vers j / nombre d'individus séléctionnés
-                            experimentTransitionMatrix[cluster.Id, i] = (float)finalStatesCounts[i] / ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT;
+                            experimentTransitionMatrix[cluster.Id, i] = (double)finalStatesCounts[i] / ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT;
                         }
                     }
 
@@ -203,7 +203,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
                 }
 
                 // Matrice de transition moyenne des matrices de transition par toutes les expériences
-                float[,] avgTransitionMatrix = MatrixUtils.AverageMatrices(experimentsTransitionsMatrices);
+                double[,] avgTransitionMatrix = MatrixUtils.AverageMatrices(experimentsTransitionsMatrices);
                 // La matrice de transition moyenne sera utilisée par l'action calculée de l'action actuelle
                 ComputedActions[action] = new(actionData.name, actionData.label, avgTransitionMatrix);
             }

@@ -1,17 +1,17 @@
 namespace IDMarkovChain.Algorithms.KMeans
 {
-    public class KMeansCluster(int id, List<IClusterPoint> points, float centroid)
+    public class KMeansCluster(int id, List<IClusterPoint> points, double centroid)
     {
         public int Id { get; set; } = id;
 
         public List<IClusterPoint> Points { get; set; } = points;
 
-        public float Centroid { get; set; } = centroid;
+        public double Centroid { get; set; } = centroid;
 
         // Recalcule et met à-jour le centroïde à partir des points données
-        public float ComputeCentroid()
+        public double ComputeCentroid()
         {
-            float sum = 0;
+            double sum = 0;
             foreach (IClusterPoint point in Points)
             {
                 sum += point.Coordinate;
