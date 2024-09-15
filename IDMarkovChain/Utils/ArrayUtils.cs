@@ -3,7 +3,7 @@ namespace IDMarkovChain.Utils
     public static class ArrayUtils
     {
         // Génère N indices alétaoires d'un tableau à une taille donnée
-        public static int[] GetRandomUniqueIndexes(int arraySize, int n)
+        public static int[] GetRandomUniqueIndices(int arraySize, int n)
         {
             Random rand = new();
 
