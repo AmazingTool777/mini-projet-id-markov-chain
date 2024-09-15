@@ -36,7 +36,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
         public static readonly int ACTIONS_COMPUTE_RANDOM_SAMPLES_COUNT = 8;
 
         // Le nombre d'expériences sur la détermination de la matrice de transition
-        public static readonly int ACTIONS_COMPUTE_EXPERIMENTS_COUNT = 100;
+        public static readonly int ACTIONS_COMPUTE_EXPERIMENTS_COUNT = 1000;
 
         // Les noms et libellés des actions possibles
         public static readonly (string name, string label)[] ActionsNamesLabels = [
