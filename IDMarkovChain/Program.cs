@@ -90,7 +90,7 @@ class Program
         Console.WriteLine("Politique:");
         for (int i = 0; i < 4; i++)
         {
-            Console.WriteLine($"Etat {i} => {ProblemContext.Policies[minPolicyIndice].ActionsIndices[i]}");
+            Console.WriteLine($"Etat {i} => Décision {ProblemContext.Policies[minPolicyIndice].ActionsIndices[i]}");
         }
     }
 }
