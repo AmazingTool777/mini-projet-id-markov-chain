@@ -1,7 +1,5 @@
-using IDMarkovChain.Models.EmployeePerformance;
 using IDMarkovChain.Utils;
 using System.Text.Json;
-using System.IO;
 
 namespace IDMarkovChain.Models.EmployeePerformance
 {
@@ -21,11 +19,11 @@ namespace IDMarkovChain.Models.EmployeePerformance
 
             // Construction des sous-intervalles à partir du nombre minimum et nombre maximum d'unités de productions possibles
             // Le nombre de sous-intervalles est le nombre de clusters.
-            int clustersCount = EmployeePerformanceDataset.HypotheticalActions[0].TransitionMatrix.GetLength(0);
+            int clustersCount = ProblemContext.HypotheticalActions[0].TransitionMatrix.GetLength(0);
             const int MIN_OUTPUT_COUNT = 1, MAX_OUTPUT_COUNT = 201;
             List<int[]> outputCountRanges = NumbersUtils.GetSubRanges(clustersCount, MIN_OUTPUT_COUNT, MAX_OUTPUT_COUNT);
 
-            int actionsCount = EmployeePerformanceDataset.HypotheticalActions.Length;
+            int actionsCount = ProblemContext.HypotheticalActions.Length;
 
             // L'Id courant de l'employé (Commence par 1)
             int empId = 1;
@@ -65,7 +63,7 @@ namespace IDMarkovChain.Models.EmployeePerformance
             // Cela garantit que l'employé à l'indice i, j et k sont est le même employé à ces indices dans t=0
             for (int i = 0; i < actionsCount; i++)
             {
-                MarkovChainAction action = EmployeePerformanceDataset.HypotheticalActions[i];
+                MarkovChainAction action = ProblemContext.HypotheticalActions[i];
 
                 for (int j = 0; j < clustersCount; j++)
                 {

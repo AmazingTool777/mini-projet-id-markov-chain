@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using IDMarkovChain.Algorithms.KMeans;
+using IDMarkovChain;
 using IDMarkovChain.Models.EmployeePerformance;
 using IDMarkovChain.Utils;
 
@@ -33,14 +33,14 @@ class Program
         Console.WriteLine();
 
         Console.WriteLine("Les matrices de transitions hypothétiques:");
-        foreach (MarkovChainAction action in EmployeePerformanceDataset.HypotheticalActions)
+        foreach (MarkovChainAction action in ProblemContext.HypotheticalActions)
         {
             action.Describe();
         }
         Console.WriteLine();
 
         Console.WriteLine("Les matrices de transitions calculées:");
-        MarkovChainAction[] actions = EmployeePerformanceDataset.ComputeActions();
+        MarkovChainAction[] actions = ProblemContext.ComputeActions();
         foreach (MarkovChainAction action in actions)
         {
             action.Describe();
