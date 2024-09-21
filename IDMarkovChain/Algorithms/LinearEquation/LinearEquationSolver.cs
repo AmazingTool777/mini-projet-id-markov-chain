@@ -11,7 +11,7 @@ namespace IDMarkovChain.Algorithms.LinearEquation
         /// <param name="constants">Valeurs constantes du système d'équations</param>
         /// <param name="method">Stratégie de résolution du système d'équations</param>
         /// <returns>Les valeurs des inconnues</returns>
-        public static double[] Solve(double[,] matrix, double[] constants, ILinearEquationMethodStrategy? method = null)
+        public static double[] Solve(double[,] matrix, double[] constants, ILinearEquationSolverMethod? method = null)
         {
             method ??= new GaussEliminationMethod();
             return method.Solve(matrix, constants);

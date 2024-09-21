@@ -6,61 +6,64 @@ namespace IDMarkovChain.Algorithms.LinearEquation
     /// Classe permettant de resoudre l'équation lineaire utilisant la méthode d'elimination de Gauss.
     /// Implémente l'interface d'une stratégie de résolution d'un système d'équations linéaires
     /// </summary>
-    public class GaussEliminationMethod : ILinearEquationMethodStrategy
+    public class GaussEliminationMethod : ILinearEquationSolverMethod
     {
         /// <summary>
         /// Résout un problème d'équations linéaires
         /// </summary>
-        /// <param name="matrix">La matrice des coefficients</param>
+        /// <param name="coeffs">La matrice des coefficients</param>
         /// <param name="constants">Le vecteur les constantes au 2nd membre</param>
         /// <returns>Le vecteur des solutions</returns>
-        public double[] Solve(double[,] matrix, double[] constants)
+        public double[] Solve(double[,] coeffs, double[] constants)
         {
             int n = constants.Length;
-            for (int i = 0; i < n - 1; i++)
+            int m = coeffs.GetLength(1);
+
+            // Elimination successives des coefficients suivant la diagonale
+            for (int i = 0; i < m; i++)
             {
-                double maxElement = Math.Abs(matrix[i, i]);
+                // Recherche de la ligne avec le plus grand coefficient sur la colonne actuelle
+                double maxElement = Math.Abs(coeffs[i, i]);
                 int maxRow = i;
                 for (int k = i + 1; k < n; k++)
                 {
-                    if (Math.Abs(matrix[k, i]) > maxElement)
+                    if (Math.Abs(coeffs[k, i]) > maxElement)
                     {
-                        maxElement = Math.Abs(matrix[k, i]);
+                        maxElement = Math.Abs(coeffs[k, i]);
                         maxRow = k;
                     }
                 }
-
-                for (int k = i; k < n; k++)
+                // Permutation de la ligne actuelle avec la ligne ayant le coefficient le plus grand
+                // afin de prendre cette ligne en tant que ligne pivot
+                for (int k = i; k < m; k++)
                 {
-                    double temp = matrix[maxRow, k];
-                    matrix[maxRow, k] = matrix[i, k];
-                    matrix[i, k] = temp;
+                    (coeffs[i, k], coeffs[maxRow, k]) = (coeffs[maxRow, k], coeffs[i, k]);
                 }
-                double tempConstant = constants[maxRow];
-                constants[maxRow] = constants[i];
-                constants[i] = tempConstant;
+                (constants[i], constants[maxRow]) = (constants[maxRow], constants[i]);
 
+                // Elimination des coefficients
                 for (int k = i + 1; k < n; k++)
                 {
-                    double factor = matrix[k, i] / matrix[i, i];
-                    for (int j = i; j < n; j++)
+                    double factor = coeffs[k, i] / coeffs[i, i]; // Facteur d'elimination par la ligne pivot
+                    for (int j = i; j < m; j++)
                     {
-                        matrix[k, j] -= factor * matrix[i, j];
+                        coeffs[k, j] -= factor * coeffs[i, j];
                     }
                     constants[k] -= factor * constants[i];
                 }
             }
 
-            /// substitution backward
-            double[] result = new double[n];
-            for (int i = n - 1; i >= 0; i--)
+            // Retrosubstitution
+            double[] result = new double[m];
+            for (int i = m - 1; i >= 0; i--)
             {
-                result[i] = constants[i] / matrix[i, i];
+                result[i] = constants[i] / coeffs[i, i];
                 for (int k = i - 1; k >= 0; k--)
                 {
-                    constants[k] -= matrix[k, i] * result[i];
+                    constants[k] -= coeffs[k, i] * result[i];
                 }
             }
+
             return result;
         }
     }

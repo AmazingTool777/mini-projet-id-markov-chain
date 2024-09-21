@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using IDMarkovChain;
+using IDMarkovChain.Context;
 using IDMarkovChain.Models.EmployeePerformance;
 using IDMarkovChain.Utils;
 
@@ -7,7 +7,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        Step3();
+        Step4();
     }
 
     static void Step3()
@@ -40,10 +40,57 @@ class Program
         Console.WriteLine();
 
         Console.WriteLine("Les matrices de transitions calculées:");
-        MarkovChainAction[] actions = ProblemContext.ComputeActions();
-        foreach (MarkovChainAction action in actions)
+        foreach (MarkovChainAction action in ProblemContext.ComputedActions)
         {
             action.Describe();
+        }
+    }
+
+    static void Step4()
+    {
+        int policiesCount = ProblemContext.Policies.Length;
+
+        for (int i = 0; i < policiesCount; i++)
+        {
+            ActionsPolicy policy = ProblemContext.Policies[i];
+            int statesCount = policy.ActionsIndices.Length;
+
+            Console.WriteLine($"Politique de décision {i}:");
+            Console.WriteLine("---- Matrice de transitions");
+            MatrixUtils.PrintMatrix(policy.TransitionMatrix, 14);
+            Console.WriteLine("---- Probabilités des états à l'état stationnaire");
+            for (int j = 0; j < statesCount; j++)
+            {
+                Console.WriteLine($"¶{j} = {policy.StationaryProbabilities[j]}");
+            }
+            Console.WriteLine("---- Coûts à chaque état");
+            for (int j = 0; j < statesCount; j++)
+            {
+                Console.WriteLine($"Etat {i}: {policy.Costs[j]}");
+            }
+            Console.WriteLine($"Coût moyen E(C) = {policy.MeanCost}");
+            Console.WriteLine();
+        }
+
+        double minMeanCost = double.MaxValue;
+        int minPolicyIndice = -1;
+        for (int i = 0; i < policiesCount; i++)
+        {
+            ActionsPolicy policy = ProblemContext.Policies[i];
+            if (policy.MeanCost < minMeanCost)
+            {
+                minMeanCost = policy.MeanCost;
+                minPolicyIndice = i;
+            }
+        }
+        string output = "La politique de décision avec le moins de coûts est "
+            + $"la politique décision {minPolicyIndice} avec un coût moyen de {minMeanCost}. "
+            + $"La politique de décision {minPolicyIndice} est donc la plus optimale pour minimiser les coûts sur le long-terme.";
+        Console.WriteLine(output);
+        Console.WriteLine("Politique:");
+        for (int i = 0; i < 4; i++)
+        {
+            Console.WriteLine($"Etat {i} => {ProblemContext.Policies[minPolicyIndice].ActionsIndices[i]}");
         }
     }
 }

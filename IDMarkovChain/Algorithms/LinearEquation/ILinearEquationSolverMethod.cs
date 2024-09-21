@@ -1,6 +1,6 @@
 namespace IDMarkovChain.Algorithms.LinearEquation
 {
-    public interface ILinearEquationMethodStrategy
+    public interface ILinearEquationSolverMethod
     {
         /// <summary>
         /// Résout un système d'équations linéaires en utilisant une stratégie de résolution.
