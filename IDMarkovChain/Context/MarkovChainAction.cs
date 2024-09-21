@@ -1,4 +1,6 @@
-namespace IDMarkovChain.Utils
+using IDMarkovChain.Utils;
+
+namespace IDMarkovChain.Context
 {
     public class MarkovChainAction(string name, string label, double[,] transitionMatrix)
     {

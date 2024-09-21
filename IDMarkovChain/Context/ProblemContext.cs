@@ -2,7 +2,7 @@ using IDMarkovChain.Algorithms.KMeans;
 using IDMarkovChain.Models.EmployeePerformance;
 using IDMarkovChain.Utils;
 
-namespace IDMarkovChain
+namespace IDMarkovChain.Context
 {
     static class ProblemContext
     {
@@ -84,7 +84,7 @@ namespace IDMarkovChain
 
             // Nombre de clusters
             int K = 4; // ou HypotheticalActions[0].TransitionMatrix.GetLength(0)
-            // Clusterisation du dataset selon le niveau de performance
+                       // Clusterisation du dataset selon le niveau de performance
             KMeansCluster[] statesClusters = KMeansClustering.Clusterize(K, [.. performances!]);
 
             // Le nombre d'employés qui sont appliqués à une action
