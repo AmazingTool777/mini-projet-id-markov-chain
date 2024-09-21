@@ -48,12 +48,16 @@ class Program
 
     static void Step4()
     {
+        int statesCount = ProblemContext.HypotheticalActions[0].TransitionMatrix.GetLength(0);
         int policiesCount = ProblemContext.Policies.Length;
+
+        Console.WriteLine("Le tableau des coûts:");
+        MatrixUtils.PrintMatrix(ProblemContext.CostsTable);
+        Console.WriteLine();
 
         for (int i = 0; i < policiesCount; i++)
         {
             ActionsPolicy policy = ProblemContext.Policies[i];
-            int statesCount = policy.ActionsIndices.Length;
 
             Console.WriteLine($"Politique de décision {i}:");
             Console.WriteLine("---- Matrice de transitions");
@@ -63,6 +67,8 @@ class Program
             {
                 Console.WriteLine($"¶{j} = {policy.StationaryProbabilities[j]}");
             }
+            string isNormalizedText = policy.HasNormalizedStationaryStateProbabilities() ? "OUI" : "NON";
+            Console.WriteLine($"Contrainte de normalisation vérifiée: {isNormalizedText}");
             Console.WriteLine("---- Coûts à chaque état");
             for (int j = 0; j < statesCount; j++)
             {
@@ -88,7 +94,7 @@ class Program
             + $"La politique de décision {minPolicyIndice} est donc la plus optimale pour minimiser les coûts sur le long-terme.";
         Console.WriteLine(output);
         Console.WriteLine("Politique:");
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < statesCount; i++)
         {
             Console.WriteLine($"Etat {i} => Décision {ProblemContext.Policies[minPolicyIndice].ActionsIndices[i]}");
         }

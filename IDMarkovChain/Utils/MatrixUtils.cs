@@ -2,8 +2,30 @@ namespace IDMarkovChain.Utils
 {
     public static class MatrixUtils
     {
-        // Affiche une matrice (tableau multi-dimensionnel à 2 dimensions) d'une manière formattée
+        /// <summary>
+        /// Affiche une matrice (tableau multi-dimensionnel à 2 dimensions) d'une manière formattée
+        /// Pour les valeurs de type `double`
+        /// </summary>
+        /// <param name="matrix">La matrice à afficher</param>
+        /// <param name="columnWidth">La largeur de l'espace occupée par une valeur sur l'écran</param>
         public static void PrintMatrix(double[,] matrix, int columnWidth = 5)
+        {
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    Console.Write(matrix[i, j].ToString().PadLeft(columnWidth));
+                }
+                Console.WriteLine();
+            }
+        }
+        /// <summary>
+        /// Affiche une matrice (tableau multi-dimensionnel à 2 dimensions) d'une manière formattée
+        /// Pour les valeurs de type `double`
+        /// </summary>
+        /// <param name="matrix">La matrice à afficher</param>
+        /// <param name="columnWidth">La largeur de l'espace occupée par une valeur sur l'écran</param>
+        public static void PrintMatrix(int[,] matrix, int columnWidth = 5)
         {
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
