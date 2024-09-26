@@ -28,5 +28,15 @@ namespace IDMarkovChain.Utils
 
             return result;
         }
+
+        public static List<T> GetElementsAtIndices<T>(T[] array, int[] indices)
+        {
+            List<T> elements = [];
+            foreach (int i in indices)
+            {
+                elements.Add(array[i]);
+            }
+            return elements;
+        }
     }
 }

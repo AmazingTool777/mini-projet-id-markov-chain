@@ -82,10 +82,10 @@ namespace IDMarkovChain.Context
         // correspondent aux indices des actions à prendre à chaque état dans la politique de décision.
         // Ces indices sont celles dans le sujet mais commençent par 0 pour une bonne manipulation avec les tableaux en C#
         public static readonly ActionsPolicy[] Policies = [
-            new([0, 0, 0, 0], Actions, CostsTable),
-            new([0, 1, 1, 2], Actions, CostsTable),
-            new([1, 1, 2, 2], Actions, CostsTable),
-            new([0, 1, 2, 3], Actions, CostsTable),
+            new([0, 0, 0, 0]),
+            new([0, 1, 1, 2]),
+            new([1, 1, 2, 2]),
+            new([0, 1, 2, 3]),
         ];
 
         // Calcule les valeurs des matrices de transitions correspondantes au dataset actuel

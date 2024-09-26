@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using IDMarkovChain.Algorithms.GeneticAlgorithms;
 using IDMarkovChain.Context;
 using IDMarkovChain.Models.EmployeePerformance;
 using IDMarkovChain.Utils;
@@ -7,7 +8,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        Step4();
+        Step5();
     }
 
     static void Step3()
@@ -60,21 +61,7 @@ class Program
             ActionsPolicy policy = ProblemContext.Policies[i];
 
             Console.WriteLine($"Politique de décision {i}:");
-            Console.WriteLine("---- Matrice de transitions");
-            MatrixUtils.PrintMatrix(policy.TransitionMatrix, 14);
-            Console.WriteLine("---- Probabilités des états à l'état stationnaire");
-            for (int j = 0; j < statesCount; j++)
-            {
-                Console.WriteLine($"¶{j} = {policy.StationaryProbabilities[j]}");
-            }
-            string isNormalizedText = policy.HasNormalizedStationaryStateProbabilities() ? "OUI" : "NON";
-            Console.WriteLine($"Contrainte de normalisation vérifiée: {isNormalizedText}");
-            Console.WriteLine("---- Coûts à chaque état");
-            for (int j = 0; j < statesCount; j++)
-            {
-                Console.WriteLine($"Etat {i}: {policy.Costs[j]}");
-            }
-            Console.WriteLine($"Coût moyen E(C) = {policy.MeanCost}");
+            policy.Describe();
             Console.WriteLine();
         }
 
@@ -98,5 +85,12 @@ class Program
         {
             Console.WriteLine($"Etat {i} => Décision {ProblemContext.Policies[minPolicyIndice].ActionsIndices[i]}");
         }
+    }
+
+    public static void Step5()
+    {
+        MinMeanCostGeneticAlgorithms minMeanCostGeneticAlgorithms = new();
+        IGenAlgoIndividual<int[]> solution = minMeanCostGeneticAlgorithms.Run();
+        solution.Describe();
     }
 }

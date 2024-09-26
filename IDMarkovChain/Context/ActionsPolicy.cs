@@ -1,18 +1,19 @@
+using IDMarkovChain.Algorithms.GeneticAlgorithms;
 using IDMarkovChain.Algorithms.LinearEquation;
 using IDMarkovChain.Utils;
 
 namespace IDMarkovChain.Context
 {
-    class ActionsPolicy(int[] actionsIndices, MarkovChainAction[] actions, int[,] costsTable)
+    class ActionsPolicy(int[] actionsIndices) : IGenAlgoIndividual<int[]>
     {
         // Les indices des actions qui consituent la politique par état
         public int[] ActionsIndices = actionsIndices;
 
         // La matrice de transition de la politique de décision
-        public double[,] TransitionMatrix = InferTransitionMatrix(actionsIndices, actions);
+        public double[,] TransitionMatrix = InferTransitionMatrix(actionsIndices);
 
         // Le tableau des coûts par état de la politique de décision
-        public int[] Costs = InferCosts(actionsIndices, costsTable);
+        public int[] Costs = InferCosts(actionsIndices);
 
         // Les probabilités de chaque état à l'état stationnaire pour la politique de décision
         double[]? stationaryProbabilities;
@@ -45,14 +46,14 @@ namespace IDMarkovChain.Context
         /// <param name="actionsIndices">Les indices des actions qui constituent la politique par état</param>
         /// <param name="actions">Les actions du modèle</param>
         /// <returns>La matrice de transition de la politique de décision</returns>
-        static double[,] InferTransitionMatrix(int[] actionsIndices, MarkovChainAction[] actions)
+        static double[,] InferTransitionMatrix(int[] actionsIndices)
         {
             int statesCount = actionsIndices.Length;
             double[,] matrix = new double[statesCount, statesCount];
 
             for (int i = 0; i < statesCount; i++)
             {
-                MarkovChainAction stateAction = actions[actionsIndices[i]];
+                MarkovChainAction stateAction = ProblemContext.Actions[actionsIndices[i]];
 
                 for (int j = 0; j < statesCount; j++)
                 {
@@ -69,14 +70,14 @@ namespace IDMarkovChain.Context
         /// <param name="actionsIndices">Les indices des actions qui constituent la politique par état</param>
         /// <param name="costsTable">Le tableau global des coûts</param>
         /// <returns>Le tableau des couts d'une politique de décision déduit</returns>
-        static int[] InferCosts(int[] actionsIndices, int[,] costsTable)
+        static int[] InferCosts(int[] actionsIndices)
         {
             int statesCount = actionsIndices.Length;
             int[] costs = new int[actionsIndices.Length];
 
             for (int i = 0; i < statesCount; i++)
             {
-                costs[i] = costsTable[i, actionsIndices[i]];
+                costs[i] = ProblemContext.CostsTable[i, actionsIndices[i]];
             }
 
             return costs;
@@ -147,6 +148,73 @@ namespace IDMarkovChain.Context
             }
 
             return meanCost;
+        }
+
+        /// <summary>
+        /// Décrit la politique de décision sur console.
+        /// </summary>
+        public void Describe()
+        {
+            int statesCount = ProblemContext.HypotheticalActions[0].TransitionMatrix.GetLength(0);
+            Console.WriteLine("---- Matrice de transitions");
+            MatrixUtils.PrintMatrix(TransitionMatrix, 14);
+            Console.WriteLine("---- Probabilités des états à l'état stationnaire");
+            for (int j = 0; j < statesCount; j++)
+            {
+                Console.WriteLine($"¶{j} = {StationaryProbabilities[j]}");
+            }
+            string isNormalizedText = HasNormalizedStationaryStateProbabilities() ? "OUI" : "NON";
+            Console.WriteLine($"Contrainte de normalisation vérifiée: {isNormalizedText}");
+            Console.WriteLine("---- Actions à chaque état");
+            for (int i = 0; i < statesCount; i++)
+            {
+                Console.WriteLine($"Etat {i} => Action {ActionsIndices[i]}");
+            }
+            Console.WriteLine("---- Coûts à chaque état");
+            for (int i = 0; i < statesCount; i++)
+            {
+                Console.WriteLine($"Etat {i}: {Costs[i]}");
+            }
+            Console.WriteLine($"Coût moyen E(C) = {MeanCost}");
+        }
+
+        /// <summary>
+        /// Implémenation du Getter de l'encodage de la politque de décision
+        /// en tant qu'individu dans l'algorithme génétique
+        /// </summary>
+        /// <returns>L'encodage</returns>
+        public int[] GetEncoding()
+        {
+            return ActionsIndices;
+        }
+
+        /// <summary>
+        /// Implémenation du Setter de l'encodage de la politque de décision
+        /// en tant qu'individu dans l'algorithme génétique
+        /// </summary>
+        /// <param name="encoding">Le nouveau encodage</param>
+        /// <returns></returns>
+        public IGenAlgoIndividual<int[]> SetEncoding(int[] encoding)
+        {
+            // Mise à jour de l'encodage
+            ActionsIndices = encoding;
+            // Réinitialisation des autres attributs dépendants sur l'encodage
+            TransitionMatrix = InferTransitionMatrix(ActionsIndices);
+            Costs = InferCosts(ActionsIndices);
+            stationaryProbabilities = null;
+            meanCost = null;
+            // Retourne la référence sur la politique de décision
+            return this;
+        }
+
+        /// <summary>
+        /// Implémenation du Getter du score de fitness en tant qu'individu dans l'algorithme génétique.
+        /// Retourne le coût moyen dans notre cas.
+        /// </summary>
+        /// <returns>Le score de fitness qui est le coût moyen.</returns>
+        public double GetFitnessScore()
+        {
+            return MeanCost;
         }
     }
 }
