@@ -8,6 +8,16 @@ class Program
 {
     static void Main(string[] args)
     {
+        Step3();
+
+        Console.WriteLine("Appuyez sur une touche pour continuer...");
+        Console.ReadLine();
+
+        Step4();
+
+        Console.WriteLine("Appuyez sur une touche pour continuer...");
+        Console.ReadLine();
+
         Step5();
     }
 
@@ -91,6 +101,7 @@ class Program
     {
         MinMeanCostGeneticAlgorithms minMeanCostGeneticAlgorithms = new();
         IGenAlgoIndividual<int[]> solution = minMeanCostGeneticAlgorithms.Run();
+        Console.WriteLine("La politique de décision la plus optimale après avoir utilisé l'algorithme génétique est décrite comme la suivante:");
         solution.Describe();
     }
 }
